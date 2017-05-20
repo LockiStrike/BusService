@@ -76,7 +76,7 @@ class User
 
 	include Db_data
 	include Common_func
-	# include BusList
+
 	def initialize()
 		@connect = Mysql.new(host, user, password, database)
 	end
@@ -88,10 +88,10 @@ class User
 		if acc_exist.fetch_row != nil
 			@login = user_name
 			puts "Log in successful"
-			true
+			return true
 		else
 			puts "login or password is incorrect, try once more"
-			false
+			return false
 		end
 	end
 	
@@ -100,30 +100,30 @@ class User
 			@connect.query("INSERT INTO Accounts(login, password, is_admin) VALUES('%s', '%s', false)" % [user_login, user_password])
 			@login = user_login
 			puts 'registration successful'
-			true
+			return true
 		end
 		
-		false
+		return false
 	end
 	
 
-	def  show_bus_list(start_place=nil, start_date=nil)
-		query = "SELECT * FROM BusShedule "
-		if start_place != nil and start_date != nil
-			query += "WHERE start_place = '%s' AND start_date = '%s'" % [start_place, start_date]
-		elsif start_place == nil and start_date != nil
-			query += "WHERE start_date = '%s'" % start_date
-		elsif start_place != nil and start_date == nil
-			query += "WHERE start_place = '%s'" % start_place
-		end
+	# def  show_bus_list(start_place=nil, start_date=nil)
+	# 	query = "SELECT * FROM BusShedule "
+	# 	if start_place != nil and start_date != nil
+	# 		query += "WHERE start_place = '%s' AND start_date = '%s'" % [start_place, start_date]
+	# 	elsif start_place == nil and start_date != nil
+	# 		query += "WHERE start_date = '%s'" % start_date
+	# 	elsif start_place != nil and start_date == nil
+	# 		query += "WHERE start_place = '%s'" % start_place
+	# 	end
 		
-		bus_list = @connect.query(query)
+	# 	bus_list = @connect.query(query)
 
-		while bus = bus_list.fetch_hash do
-			print_bus(bus)
-		end
+	# 	while bus = bus_list.fetch_hash do
+	# 		print_bus(bus)
+	# 	end
 			
-	end
+	# end
 
 	def buy_ticket(number, position)
 
@@ -211,7 +211,7 @@ private
 			end
 			bus = bus_response.fetch_hash
 		end
-		true
+		return true
 	end
 
 
@@ -234,13 +234,19 @@ class Admin
 	def log_in(admin_name, admin_password)
 		query = "SELECT * FROM Accounts WHERE login='%s' AND password='%s'" % [admin_name, admin_password]
 		acc_exist = @connect.query(query)
-		if acc_exist.fetch_row != nil
-			@login = admin_name
-			puts "Log in successful"
-			true
+		row = acc_exist.fetch_hash
+		if row != nil
+			if row['is_admin'] == "1"
+				@login = admin_name
+				puts "Log in successful"
+				return true
+			else
+				puts "Incorrect admin credentials"
+				return false
+			end
 		else
 			puts "login or password is incorrect, try once more"
-			false
+			return false
 		end
 	end
 	
@@ -250,13 +256,13 @@ class Admin
 				@connect.query("INSERT INTO Accounts(login, password, is_admin) VALUES('%s', '%s', true)" % [admin_login, admin_password])
 				@login = admin_login
 				puts 'registration successful'
-				true
+				return true
 			end
 		else
 			puts "Wrong secret key"
 		end
 		
-		false
+		return false
 	end
 
 
@@ -273,7 +279,7 @@ class Admin
 		% [number, from_place, to_place, start_date, start_time, end_date, end_time, seats_count, seats_count]
 		@connect.query(query)
 		
-		true
+		return true
 	end
 
 	def update_bus(number, new_start_time, new_end_time, new_start_date=nil, new_end_date=nil)
@@ -287,10 +293,10 @@ class Admin
 
 				@connect.query(query)
 				puts "Bus ##{number} has been successfuly update"
-				true
+				return true
 			else
 				puts "Tickets were already bought on this bus"
-				false
+				return false
 			end
 	end
 
@@ -344,7 +350,7 @@ class Admin
 			return bus_info['avaliable_seats_count'].to_i != bus_info['seats_count'].to_i
 		else
 			puts "Bus with this number doesn't exist"
-			true
+			return true
 		end
 	end
 end
