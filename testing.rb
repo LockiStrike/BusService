@@ -13,10 +13,23 @@ def start_working
 
 end
 
+user = User.new
 
 
-active_user = User.new
-active_user.log_in('Vlad', "1234")
+admin = Admin.new
+admin.show_bought_tickets('5482')
+# login = gets.chomp
+# password = gets.chomp
+# key = 'secret key to allow'
+# admin.log_in(login, password)
+# admin.show_bus_list
+# number = gets.chomp
+# admin.update_bus(number, "16:40", "23:40" )
+
+
+
+# active_user = User.new
+# active_user.log_in('Vlad', "1234")
 # active_user.show_bus_list
 # number = gets.chomp
 # position = gets.chomp
@@ -24,7 +37,7 @@ active_user.log_in('Vlad', "1234")
 # number = gets.chomp
 # position = gets.chomp
 # active_user.buy_ticket(number, position)
-active_user.show_bought_tickets
+# active_user.show_bought_tickets
 
 # puts "registration\n"
 # begin
